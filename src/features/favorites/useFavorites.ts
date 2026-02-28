@@ -1,29 +1,49 @@
 // src/features/favorites/useFavorites.ts
-import { useState, useCallback } from 'react';
-import { favoritesStorage } from './storage';
+import { useState, useEffect, useCallback } from 'react';
+import { favoritesStorage } from '@/lib/storage';
 import type { Anime } from '@/features/anime/types';
 
 export function useFavorites() {
-  const [favorites, setFavorites] = useState<Anime[]>(() => favoritesStorage.getAll());
+  const [favorites, setFavorites] = useState<Anime[]>([]);
 
-  const addFavorite = useCallback((anime: Anime) => {
-    favoritesStorage.add(anime);
-    setFavorites(favoritesStorage.getAll());
+  useEffect(() => {
+    favoritesStorage.readFavorites<Anime>().then(setFavorites);
   }, []);
 
-  const removeFavorite = useCallback((malId: number) => {
-    favoritesStorage.remove(malId);
-    setFavorites(favoritesStorage.getAll());
+  const persist = useCallback(async (updated: Anime[]) => {
+    await favoritesStorage.writeFavorites(updated);
+    setFavorites(updated);
   }, []);
 
-  const toggleFavorite = useCallback((anime: Anime) => {
-    if (favoritesStorage.isFavorite(anime.mal_id)) {
-      favoritesStorage.remove(anime.mal_id);
-    } else {
-      favoritesStorage.add(anime);
-    }
-    setFavorites(favoritesStorage.getAll());
-  }, []);
+  const addFavorite = useCallback(
+    async (anime: Anime) => {
+      const current = await favoritesStorage.readFavorites<Anime>();
+      const exists = current.some((a) => a.mal_id === anime.mal_id);
+      if (!exists) await persist([...current, anime]);
+    },
+    [persist]
+  );
+
+  const removeFavorite = useCallback(
+    async (malId: number) => {
+      const current = await favoritesStorage.readFavorites<Anime>();
+      await persist(current.filter((a) => a.mal_id !== malId));
+    },
+    [persist]
+  );
+
+  const toggleFavorite = useCallback(
+    async (anime: Anime) => {
+      const current = await favoritesStorage.readFavorites<Anime>();
+      const exists = current.some((a) => a.mal_id === anime.mal_id);
+      if (exists) {
+        await persist(current.filter((a) => a.mal_id !== anime.mal_id));
+      } else {
+        await persist([...current, anime]);
+      }
+    },
+    [persist]
+  );
 
   const isFavorite = useCallback(
     (malId: number) => favorites.some((a) => a.mal_id === malId),
