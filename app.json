@@ -1,15 +1,9 @@
 {
   "expo": {
-    "name": "my-expo-app",
-    "slug": "my-expo-app",
+    "name": "my-anime",
+    "slug": "my-anime",
+    "scheme": "my-anime",
     "version": "1.0.0",
-    "web": {
-      "favicon": "./assets/favicon.png"
-    },
-    "experiments": {
-      "tsconfigPaths": true
-    },
-    "plugins": [],
     "orientation": "portrait",
     "icon": "./assets/icon.png",
     "userInterfaceStyle": "light",
@@ -18,9 +12,7 @@
       "resizeMode": "contain",
       "backgroundColor": "#ffffff"
     },
-    "assetBundlePatterns": [
-      "**/*"
-    ],
+    "assetBundlePatterns": ["**/*"],
     "ios": {
       "supportsTablet": true,
       "bundleIdentifier": "com.anonymous.myexpoapp"
@@ -32,10 +24,18 @@
       },
       "package": "com.anonymous.myexpoapp"
     },
+    "plugins": ["./plugins/withGradleProperties", "expo-router"],
+    "experiments": {
+      "tsconfigPaths": true,
+      "typedRoutes": true
+    },
     "extra": {
       "eas": {
         "projectId": "5d4086d8-6261-43fd-8687-2f7ac17c8870"
       }
+    },
+    "web": {
+      "favicon": "./assets/favicon.png"
     }
   }
 }
