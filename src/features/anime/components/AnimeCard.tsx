@@ -7,7 +7,7 @@ import { Ionicons } from '@expo/vector-icons';
 import { useTheme } from '@/context/ThemeContext';
 import type { Anime } from '../types';
 
-const CARD_WIDTH = (Dimensions.get('window').width - 48) / 2;
+const CARD_WIDTH = (Dimensions.get('window').width - 50) / 2;
 
 const blurhash = 'L6PZfSi_.AyE_3t7t7R**0o#DgR4';
 
@@ -22,7 +22,7 @@ export const AnimeCard = memo(function AnimeCard({ anime }: AnimeCardProps) {
   return (
     <TouchableOpacity
       style={{ width: CARD_WIDTH }}
-      className={`mb-4 overflow-hidden rounded-2xl shadow-sm ${isDark ? 'bg-gray-800' : 'bg-white'}`}
+      className={`mb-2 overflow-hidden rounded-2xl shadow-sm ${isDark ? 'bg-gray-800' : 'bg-white'}`}
       onPress={() => router.push(`/anime/${anime.mal_id}`)}
       activeOpacity={0.8}>
       <View className="relative">
