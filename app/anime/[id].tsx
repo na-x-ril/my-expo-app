@@ -64,15 +64,15 @@ export default function AnimeDetailScreen() {
           transition={200}
         />
         <View className="px-4 pt-4">
-          <View className="flex-row items-start justify-between">
+          <View className="my-4 flex-row items-start justify-between">
             <Text
-              className={`flex-1 pr-3 text-xl font-bold ${isDark ? 'text-gray-100' : 'text-gray-900'}`}>
+              className={`flex-1 pr-3 text-4xl font-bold ${isDark ? 'text-gray-100' : 'text-gray-900'}`}>
               {anime.title}
             </Text>
             <TouchableOpacity onPress={() => toggleFavorite(anime)}>
               <Ionicons
                 name={favorited ? 'heart' : 'heart-outline'}
-                size={26}
+                size={34}
                 color={favorited ? '#ef4444' : isDark ? '#6b7280' : '#9ca3af'}
               />
             </TouchableOpacity>
@@ -84,7 +84,7 @@ export default function AnimeDetailScreen() {
                 key={g.mal_id}
                 className={`rounded-full px-3 py-1 ${isDark ? 'bg-indigo-900' : 'bg-indigo-100'}`}>
                 <Text
-                  className={`text-xs font-medium ${isDark ? 'text-indigo-300' : 'text-indigo-600'}`}>
+                  className={`text-sm font-medium ${isDark ? 'text-indigo-300' : 'text-indigo-600'}`}>
                   {g.name}
                 </Text>
               </View>
@@ -98,11 +98,12 @@ export default function AnimeDetailScreen() {
               { label: 'Status', value: anime.status ?? 'Unknown' },
               { label: 'Rank', value: `#${anime.rank ?? 'N/A'}` },
             ].map(({ label, value }) => (
-              <View key={label} className="items-center">
-                <Text className={`text-xs ${isDark ? 'text-gray-500' : 'text-gray-400'}`}>
+              <View key={label} className="flex-1 items-center">
+                <Text
+                  className={`w-full text-center text-sm ${isDark ? 'text-gray-500' : 'text-gray-400'}`}>
                   {label}
                 </Text>
-                <Text className={`font-bold ${isDark ? 'text-gray-200' : 'text-gray-800'}`}>
+                <Text className={`text-sm font-bold ${isDark ? 'text-gray-200' : 'text-gray-800'}`}>
                   {value}
                 </Text>
               </View>
@@ -110,7 +111,7 @@ export default function AnimeDetailScreen() {
           </View>
 
           <Text
-            className={`mt-4 text-sm leading-relaxed ${isDark ? 'text-gray-300' : 'text-gray-700'}`}>
+            className={`text-md mt-4 leading-relaxed ${isDark ? 'text-gray-300' : 'text-gray-700'}`}>
             {anime.synopsis ?? 'No synopsis available.'}
           </Text>
         </View>

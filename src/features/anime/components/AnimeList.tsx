@@ -6,7 +6,6 @@ import { AnimeCard } from './AnimeCard';
 import { GridSkeletonCard } from './skeletons/GridSkeletonCard';
 import { FilterSheet } from './FilterSheet';
 import { FilterButton } from './FilterButton';
-import { useFavorites } from '@/features/favorites/useFavorites';
 import { useTheme } from '@/context/ThemeContext';
 import { useAnimeFilters } from '../hooks/useAnimeFilters';
 import type { AnimeListResponse, Anime } from '../types';
@@ -26,7 +25,6 @@ function extractAnimeList(data: InfiniteData<AnimeListResponse> | undefined): An
 const SKELETON_DATA: ListItem[] = Array.from({ length: 6 }, (_, i) => ({ mal_id: -(i + 1) }));
 
 export function AnimeList({ query, listRef, onScroll }: AnimeListProps) {
-  const { isFavorite, toggleFavorite } = useFavorites();
   const { isDark } = useTheme();
   const internalRef = useRef<FlatList | null>(null);
   const { data, isLoading, isError, fetchNextPage, hasNextPage, isFetchingNextPage, refetch } =
@@ -42,15 +40,9 @@ export function AnimeList({ query, listRef, onScroll }: AnimeListProps) {
     ({ item }: { item: ListItem }) => {
       if (isLoading) return <GridSkeletonCard />;
       const anime = item as Anime;
-      return (
-        <AnimeCard
-          anime={anime}
-          isFavorite={isFavorite(anime.mal_id)}
-          onToggleFavorite={toggleFavorite}
-        />
-      );
+      return <AnimeCard anime={anime} />;
     },
-    [isLoading, isFavorite, toggleFavorite]
+    [isLoading]
   );
 
   const onEndReached = useCallback(() => {
@@ -70,7 +62,7 @@ export function AnimeList({ query, listRef, onScroll }: AnimeListProps) {
         columnWrapperClassName="justify-between"
         renderItem={renderItem}
         contentContainerClassName={`px-4 pb-8 ${isError ? 'flex-1' : ''}`}
-        className={isDark ? 'bg-gray-900' : 'bg-gray-50'}
+        className={isDark ? 'bg-gray-900' : 'bg-white'}
         onRefresh={refetch}
         refreshing={false}
         onEndReached={onEndReached}
@@ -85,7 +77,7 @@ export function AnimeList({ query, listRef, onScroll }: AnimeListProps) {
         ListHeaderComponent={
           !isLoading ? (
             <View className="mb-2 flex-row items-center justify-between">
-              <Text className={`text-xs ${isDark ? 'text-gray-500' : 'text-gray-400'}`}>
+              <Text className={`text-md flex-1 ${isDark ? 'text-gray-500' : 'text-gray-400'}`}>
                 {filtered.length} results
               </Text>
               <FilterButton filters={filters} onPress={openSheet} />

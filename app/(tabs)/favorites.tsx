@@ -6,6 +6,7 @@ import { AnimeCard } from '@/features/anime/components/AnimeCard';
 import { FilterSheet } from '@/features/anime/components/FilterSheet';
 import { FilterButton } from '@/features/anime/components/FilterButton';
 import { useAnimeFilters } from '@/features/anime/hooks/useAnimeFilters';
+import { DEFAULT_FILTERS } from '@/features/anime/types/filter';
 import { BackToTopButton } from '@/components/BackToTopButton';
 import { useTheme } from '@/context/ThemeContext';
 import type { Anime } from '@/features/anime/types';
@@ -13,24 +14,17 @@ import type { Anime } from '@/features/anime/types';
 const SCROLL_THRESHOLD = 300;
 
 export default function FavoritesScreen() {
-  const { favorites, isFavorite, toggleFavorite } = useFavorites();
+  const { favorites } = useFavorites();
   const { isDark } = useTheme();
-  const { filters, setFilters, filtered, sheetVisible, openSheet, closeSheet } =
-    useAnimeFilters(favorites);
+  const { filters, setFilters, filtered, sheetVisible, openSheet, closeSheet } = useAnimeFilters(
+    favorites,
+    { ...DEFAULT_FILTERS, sortKey: 'addedAt', sortOrder: 'desc' }
+  );
 
   const listRef = useRef<FlatList>(null);
   const [showBackToTop, setShowBackToTop] = useState(false);
 
-  const renderItem = useCallback(
-    ({ item }: { item: Anime }) => (
-      <AnimeCard
-        anime={item}
-        isFavorite={isFavorite(item.mal_id)}
-        onToggleFavorite={toggleFavorite}
-      />
-    ),
-    [isFavorite, toggleFavorite]
-  );
+  const renderItem = useCallback(({ item }: { item: Anime }) => <AnimeCard anime={item} />, []);
 
   const keyExtractor = useCallback((item: Anime) => String(item.mal_id), []);
 
@@ -44,10 +38,10 @@ export default function FavoritesScreen() {
 
   if (favorites.length === 0) {
     return (
-      <View
-        className={`flex-1 items-center justify-center ${isDark ? 'bg-gray-900' : 'bg-gray-50'}`}>
-        <Text className="mb-3 text-4xl">💔</Text>
-        <Text className={`text-base ${isDark ? 'text-gray-400' : 'text-gray-500'}`}>
+      <View className={`flex-1 items-center justify-center ${isDark ? 'bg-gray-900' : 'bg-white'}`}>
+        <Text className="mb-3 text-[4rem]">💔</Text>
+        <Text
+          className={`w-full text-center text-lg ${isDark ? 'text-gray-400' : 'text-gray-500'}`}>
           No favorites yet.
         </Text>
       </View>
@@ -65,7 +59,7 @@ export default function FavoritesScreen() {
         columnWrapperClassName="justify-between"
         renderItem={renderItem}
         contentContainerClassName="px-4 pb-8"
-        className={isDark ? 'bg-gray-900' : 'bg-gray-50'}
+        className={isDark ? 'bg-gray-900' : 'bg-white'}
         onScroll={handleScroll}
         scrollEventThrottle={16}
         removeClippedSubviews
@@ -74,7 +68,7 @@ export default function FavoritesScreen() {
         initialNumToRender={6}
         ListHeaderComponent={
           <View className="my-2 flex-row items-center justify-between">
-            <Text className={`text-xs ${isDark ? 'text-gray-500' : 'text-gray-400'}`}>
+            <Text className={`text-md flex-1 ${isDark ? 'text-gray-500' : 'text-gray-400'}`}>
               {filtered.length} of {favorites.length}
             </Text>
             <FilterButton filters={filters} onPress={openSheet} />
@@ -93,6 +87,7 @@ export default function FavoritesScreen() {
         filters={filters}
         onChange={setFilters}
         onClose={closeSheet}
+        sortKeys={['score', 'title', 'episodes', 'addedAt']}
       />
       <BackToTopButton visible={showBackToTop} onPress={handleBackToTop} />
     </>

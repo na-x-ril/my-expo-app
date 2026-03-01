@@ -8,7 +8,6 @@ import { GridSkeletonCard } from '@/features/anime/components/skeletons/GridSkel
 import { FilterSheet } from '@/features/anime/components/FilterSheet';
 import { FilterButton } from '@/features/anime/components/FilterButton';
 import { useAnimeFilters } from '@/features/anime/hooks/useAnimeFilters';
-import { useFavorites } from '@/features/favorites/useFavorites';
 import { BackToTopButton } from '@/components/BackToTopButton';
 import { useTheme } from '@/context/ThemeContext';
 import type { Anime, AnimeListResponse } from '@/features/anime/types';
@@ -28,7 +27,6 @@ export default function SearchScreen() {
   const [showBackToTop, setShowBackToTop] = useState(false);
   const { data, isLoading, isError, fetchNextPage, hasNextPage, isFetchingNextPage, refetch } =
     useSearchAnime(query);
-  const { isFavorite, toggleFavorite } = useFavorites();
   const { isDark } = useTheme();
   const listRef = useRef<FlatList>(null);
 
@@ -43,15 +41,9 @@ export default function SearchScreen() {
     ({ item }: { item: ListItem }) => {
       if (isLoading) return <GridSkeletonCard />;
       const anime = item as Anime;
-      return (
-        <AnimeCard
-          anime={anime}
-          isFavorite={isFavorite(anime.mal_id)}
-          onToggleFavorite={toggleFavorite}
-        />
-      );
+      return <AnimeCard anime={anime} />;
     },
-    [isLoading, isFavorite, toggleFavorite]
+    [isLoading]
   );
 
   const onEndReached = useCallback(() => {
@@ -69,12 +61,12 @@ export default function SearchScreen() {
   }, []);
 
   return (
-    <View className={`flex-1 ${isDark ? 'bg-gray-900' : 'bg-gray-50'}`}>
+    <View className={`flex-1 ${isDark ? 'bg-gray-900' : 'bg-white'}`}>
       <View
         className={`mx-4 my-2 flex-row items-center rounded-full border px-4 ${
           isDark ? 'border-gray-700 bg-gray-800' : 'border-gray-200 bg-white'
         }`}>
-        <Ionicons name="search" size={22} color={isDark ? '#6b7280' : '#9ca3af'} />
+        <Ionicons name="search" size={24} color={isDark ? '#6b7280' : '#9ca3af'} />
         <TextInput
           className={`ml-2 flex-1 text-lg ${isDark ? 'text-gray-100' : 'text-gray-900'}`}
           placeholder="Search anime..."
@@ -116,7 +108,7 @@ export default function SearchScreen() {
             ListHeaderComponent={
               !isLoading ? (
                 <View className="mb-2 flex-row items-center justify-between">
-                  <Text className={`text-xs ${isDark ? 'text-gray-500' : 'text-gray-400'}`}>
+                  <Text className={`text-md flex-1 ${isDark ? 'text-gray-500' : 'text-gray-400'}`}>
                     {filtered.length} results
                   </Text>
                   <FilterButton filters={filters} onPress={openSheet} />

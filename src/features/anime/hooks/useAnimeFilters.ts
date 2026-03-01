@@ -4,8 +4,8 @@ import { DEFAULT_FILTERS } from '../types/filter';
 import { filterAndSortAnime } from '../utils/filterAnime';
 import type { Anime, AnimeFilters } from '../types';
 
-export function useAnimeFilters(list: Anime[]) {
-  const [filters, setFilters] = useState<AnimeFilters>(DEFAULT_FILTERS);
+export function useAnimeFilters(list: Anime[], defaultFilters?: AnimeFilters) {
+  const [filters, setFilters] = useState<AnimeFilters>(defaultFilters ?? DEFAULT_FILTERS);
   const [sheetVisible, setSheetVisible] = useState(false);
 
   const filtered = useMemo(() => filterAndSortAnime(list, filters), [list, filters]);

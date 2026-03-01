@@ -10,6 +10,7 @@ interface FilterSheetProps {
   filters: AnimeFilters;
   onChange: (filters: AnimeFilters) => void;
   onClose: () => void;
+  sortKeys?: SortKey[];
 }
 
 function ChipGroup<T extends string>({
@@ -36,6 +37,7 @@ function ChipGroup<T extends string>({
           const active = value === opt;
           return (
             <TouchableOpacity
+              activeOpacity={0.6}
               key={opt}
               onPress={() => onSelect(opt)}
               className={`rounded-full px-3 py-1.5 ${
@@ -46,7 +48,7 @@ function ChipGroup<T extends string>({
                     : 'border border-gray-200 bg-white'
               }`}>
               <Text
-                className={`text-xs font-medium ${active ? 'text-white' : isDark ? 'text-gray-300' : 'text-gray-600'}`}>
+                className={`text-md font-medium ${active ? 'text-white' : isDark ? 'text-gray-300' : 'text-gray-600'}`}>
                 {opt}
               </Text>
             </TouchableOpacity>
@@ -62,6 +64,7 @@ export const FilterSheet = memo(function FilterSheet({
   filters,
   onChange,
   onClose,
+  sortKeys = ['score', 'title', 'episodes'],
 }: FilterSheetProps) {
   const { isDark } = useTheme();
 
@@ -76,20 +79,20 @@ export const FilterSheet = memo(function FilterSheet({
 
   return (
     <Modal visible={visible} transparent animationType="slide" onRequestClose={onClose}>
-      <Pressable className="flex-1 bg-black/40" onPress={onClose} />
-      <View className={`rounded-t-3xl px-5 pb-10 pt-4 ${isDark ? 'bg-gray-800' : 'bg-white'}`}>
+      <Pressable className="flex-1 bg-transparent" onPress={onClose} />
+      <View className={`rounded-t-[2rem] px-5 pb-10 pt-5 ${isDark ? 'bg-gray-800' : 'bg-white'}`}>
         <View className="mb-4 flex-row items-center justify-between">
-          <Text className={`text-base font-bold ${isDark ? 'text-gray-100' : 'text-gray-900'}`}>
+          <Text className={`text-4xl font-bold ${isDark ? 'text-gray-100' : 'text-gray-900'}`}>
             Sort & Filter
           </Text>
-          <TouchableOpacity onPress={onClose}>
-            <Ionicons name="close" size={22} color={isDark ? '#9ca3af' : '#6b7280'} />
+          <TouchableOpacity activeOpacity={0.6} onPress={onClose}>
+            <Ionicons name="close" size={28} color={isDark ? '#9ca3af' : '#6b7280'} />
           </TouchableOpacity>
         </View>
 
         <ChipGroup<SortKey>
           label="Sort By"
-          options={['score', 'title', 'episodes']}
+          options={sortKeys}
           value={filters.sortKey}
           onSelect={(v) => update({ sortKey: v })}
           isDark={isDark}
@@ -101,15 +104,16 @@ export const FilterSheet = memo(function FilterSheet({
             Order
           </Text>
           <TouchableOpacity
+            activeOpacity={0.6}
             onPress={toggleSortOrder}
             className={`flex-row items-center gap-1 rounded-full px-3 py-1.5 ${isDark ? 'bg-gray-700' : 'bg-gray-100'}`}>
             <Ionicons
               name={filters.sortOrder === 'asc' ? 'arrow-up' : 'arrow-down'}
-              size={14}
+              size={18}
               color={isDark ? '#a5b4fc' : '#6366f1'}
             />
             <Text
-              className={`text-xs font-medium ${isDark ? 'text-indigo-300' : 'text-indigo-600'}`}>
+              className={`text-md font-medium ${isDark ? 'text-indigo-300' : 'text-indigo-600'}`}>
               {filters.sortOrder === 'asc' ? 'Ascending' : 'Descending'}
             </Text>
           </TouchableOpacity>

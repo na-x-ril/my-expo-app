@@ -44,7 +44,7 @@ export function useFavorites() {
   const addFavorite = useCallback(
     async (anime: Anime) => {
       const exists = cachedFavorites.some((a) => a.mal_id === anime.mal_id);
-      if (!exists) await persist([...cachedFavorites, anime]);
+      if (!exists) await persist([...cachedFavorites, { ...anime, addedAt: Date.now() }]);
     },
     [persist]
   );
@@ -62,7 +62,7 @@ export function useFavorites() {
       if (exists) {
         await persist(cachedFavorites.filter((a) => a.mal_id !== anime.mal_id));
       } else {
-        await persist([...cachedFavorites, anime]);
+        await persist([...cachedFavorites, { ...anime, addedAt: Date.now() }]);
       }
     },
     [persist]

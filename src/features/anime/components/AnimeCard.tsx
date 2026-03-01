@@ -13,15 +13,9 @@ const blurhash = 'L6PZfSi_.AyE_3t7t7R**0o#DgR4';
 
 interface AnimeCardProps {
   anime: Anime;
-  isFavorite: boolean;
-  onToggleFavorite: (anime: Anime) => void;
 }
 
-export const AnimeCard = memo(function AnimeCard({
-  anime,
-  isFavorite,
-  onToggleFavorite,
-}: AnimeCardProps) {
+export const AnimeCard = memo(function AnimeCard({ anime }: AnimeCardProps) {
   const router = useRouter();
   const { isDark } = useTheme();
 
@@ -40,30 +34,20 @@ export const AnimeCard = memo(function AnimeCard({
           cachePolicy="memory-disk"
           transition={200}
         />
-        <TouchableOpacity
-          className="absolute right-2 top-2 rounded-full bg-black/30 p-1.5"
-          onPress={() => onToggleFavorite(anime)}
-          hitSlop={{ top: 8, bottom: 8, left: 8, right: 8 }}>
-          <Ionicons
-            name={isFavorite ? 'heart' : 'heart-outline'}
-            size={16}
-            color={isFavorite ? '#ef4444' : '#ffffff'}
-          />
-        </TouchableOpacity>
         {anime.score !== null && (
-          <View className="absolute bottom-2 left-2 flex-row items-center rounded-full bg-black/50 px-2 py-0.5">
-            <Ionicons name="star" size={10} color="#f59e0b" />
-            <Text className="ml-1 text-xs font-semibold text-white">{anime.score.toFixed(1)}</Text>
+          <View className="absolute bottom-2 left-2 flex-row items-center rounded-full bg-black/50 px-2 py-1">
+            <Ionicons name="star" size={16} color="#f59e0b" />
+            <Text className="text-md ml-1 font-semibold text-white">{anime.score.toFixed(1)}</Text>
           </View>
         )}
       </View>
       <View className="p-2">
         <Text
-          className={`text-md font-semibold leading-tight ${isDark ? 'text-gray-100' : 'text-gray-900'}`}
+          className={`text-lg font-semibold leading-tight ${isDark ? 'text-gray-100' : 'text-gray-900'}`}
           numberOfLines={2}>
           {anime.title}
         </Text>
-        <Text className={`mt-1 text-xs ${isDark ? 'text-gray-500' : 'text-gray-400'}`}>
+        <Text className={`mt-1 text-sm ${isDark ? 'text-gray-500' : 'text-gray-400'}`}>
           {anime.type ?? 'Unknown'} · {anime.episodes ? `${anime.episodes} eps` : 'Ongoing'}
         </Text>
       </View>

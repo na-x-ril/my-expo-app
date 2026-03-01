@@ -23,8 +23,7 @@ function MyAnimeTitle({ text, isDark, className }: MyAnimeListTitleProps) {
 export default function TabsLayout() {
   const { isDark } = useTheme();
 
-  const headerBg = isDark ? '#1f2937' : '#ffffff';
-  const headerColor = isDark ? '#f9fafb' : '#111827';
+  const headerBg = isDark ? '#111827' : '#ffffff';
 
   return (
     <Tabs
@@ -32,15 +31,17 @@ export default function TabsLayout() {
         tabBarActiveTintColor: '#6366f1',
         tabBarInactiveTintColor: isDark ? '#6b7280' : '#9ca3af',
         tabBarShowLabel: false,
+        headerShadowVisible: false,
         tabBarIconStyle: {
-          top: 8,
+          top: 10,
         },
         tabBarStyle: {
-          backgroundColor: isDark ? '#1f2937' : '#ffffff',
-          borderColor: '#454545',
+          height: 75,
+          backgroundColor: isDark ? '#111827' : '#ffffff',
+          borderColor: 'transparent',
+          shadowColor: 'transparent',
         },
         headerStyle: { backgroundColor: headerBg },
-        headerTintColor: headerColor,
         headerRight: () => <ThemeToggle />,
       }}>
       <Tabs.Screen

@@ -94,19 +94,19 @@ export default function HomeScreen() {
   });
 
   return (
-    <View className={`flex-1 ${isDark ? 'bg-gray-900' : 'bg-gray-50'}`}>
+    <View className={`flex-1 ${isDark ? 'bg-gray-900' : 'bg-white'}`}>
       <View className="mx-4 my-2 flex-row gap-2">
         <Pressable className="flex-1" onPress={() => handleTabPress('top')}>
           <Animated.View
             style={{
-              borderRadius: 12,
+              borderRadius: 14,
               paddingVertical: 8,
               alignItems: 'center',
               backgroundColor: topBgColor,
               borderWidth: 1,
               borderColor: topBorderColor,
             }}>
-            <Animated.Text style={{ fontWeight: '600', color: topTextColor }}>
+            <Animated.Text style={{ fontWeight: '600', fontSize: 16, color: topTextColor }}>
               Top Anime
             </Animated.Text>
           </Animated.View>
@@ -115,14 +115,14 @@ export default function HomeScreen() {
         <Pressable className="flex-1" onPress={() => handleTabPress('seasonal')}>
           <Animated.View
             style={{
-              borderRadius: 12,
+              borderRadius: 14,
               paddingVertical: 8,
               alignItems: 'center',
               backgroundColor: seasonalBgColor,
               borderWidth: 1,
               borderColor: seasonalBorderColor,
             }}>
-            <Animated.Text style={{ fontWeight: '600', color: seasonalTextColor }}>
+            <Animated.Text style={{ fontWeight: '600', fontSize: 16, color: seasonalTextColor }}>
               Seasonal
             </Animated.Text>
           </Animated.View>

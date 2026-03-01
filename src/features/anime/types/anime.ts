@@ -67,4 +67,5 @@ export interface Anime {
   broadcast: AnimeBroadcast;
   genres: AnimeGenre[];
   studios: AnimeStudio[];
+  addedAt?: number;
 }

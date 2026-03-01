@@ -26,7 +26,8 @@ export const FilterButton = memo(function FilterButton({ filters, onPress }: Fil
   return (
     <TouchableOpacity
       onPress={onPress}
-      className={`flex-row items-center gap-1 rounded-xl px-3 py-2 ${
+      activeOpacity={0.6}
+      className={`flex-row items-center gap-1 rounded-full px-3.5 py-1 ${
         active
           ? 'bg-indigo-500'
           : isDark
@@ -35,11 +36,11 @@ export const FilterButton = memo(function FilterButton({ filters, onPress }: Fil
       }`}>
       <Ionicons
         name="options-outline"
-        size={16}
+        size={20}
         color={active ? '#ffffff' : isDark ? '#9ca3af' : '#6b7280'}
       />
       <Text
-        className={`text-xs font-medium ${active ? 'text-white' : isDark ? 'text-gray-400' : 'text-gray-600'}`}>
+        className={`text-lg font-medium ${active ? 'text-white' : isDark ? 'text-gray-400' : 'text-gray-600'}`}>
         Filter
       </Text>
     </TouchableOpacity>
