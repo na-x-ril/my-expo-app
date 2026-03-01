@@ -7,12 +7,14 @@ import { ThemeToggle } from '@/components/ThemeToggle';
 
 interface MyAnimeListTitleProps {
   text: string;
+  className?: string;
   isDark: boolean;
 }
 
-function MyAnimeTitle({ text, isDark }: MyAnimeListTitleProps) {
+function MyAnimeTitle({ text, isDark, className }: MyAnimeListTitleProps) {
   return (
-    <Text className={`text-4xl font-bold ${isDark ? 'text-indigo-200' : 'text-blue-800'}`}>
+    <Text
+      className={`${className ?? 'font-semibold'} text-4xl ${isDark ? 'text-indigo-200' : 'text-blue-800'}`}>
       {text}
     </Text>
   );
@@ -46,7 +48,9 @@ export default function TabsLayout() {
         options={{
           tabBarLabel: 'Home',
           tabBarIcon: ({ color, size }) => <Ionicons name="home" size={size} color={color} />,
-          headerTitle: () => <MyAnimeTitle text="My Anime" isDark={isDark} />,
+          headerTitle: () => (
+            <MyAnimeTitle className="font-bold" text="My Animes" isDark={isDark} />
+          ),
         }}
       />
       <Tabs.Screen
