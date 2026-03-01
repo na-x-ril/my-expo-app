@@ -24,7 +24,7 @@
       },
       "package": "com.anonymous.myexpoapp"
     },
-    "plugins": ["./plugins/withGradleProperties", "expo-router"],
+    "plugins": ["./plugins/withGradleProperties", "expo-router", "expo-image"],
     "experiments": {
       "tsconfigPaths": true,
       "typedRoutes": true
@@ -36,6 +36,7 @@
     },
     "web": {
       "favicon": "./assets/favicon.png"
-    }
+    },
+    "newArchEnabled": true
   }
 }
