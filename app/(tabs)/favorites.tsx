@@ -69,7 +69,7 @@ export default function FavoritesScreen() {
         ListHeaderComponent={
           <View className="my-2 flex-row items-center justify-between">
             <Text className={`text-md flex-1 ${isDark ? 'text-gray-500' : 'text-gray-400'}`}>
-              {filtered.length} of {favorites.length}
+              {filtered.length} results
             </Text>
             <FilterButton filters={filters} onPress={openSheet} />
           </View>
