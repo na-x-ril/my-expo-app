@@ -23,7 +23,18 @@ function RootStack() {
         <Stack.Screen name="(tabs)" options={{ headerShown: false }} />
         <Stack.Screen
           name="anime/[id]"
-          options={{ title: 'Anime Detail', headerBackTitle: 'Back' }}
+          options={{
+            title: 'Anime Detail',
+            headerBackTitle: 'Back',
+            headerShadowVisible: false,
+            headerStyle: {
+              backgroundColor: isDark ? '#111827' : '#ffffff',
+            },
+            headerTitleStyle: {
+              fontSize: 26,
+              color: isDark ? '#f9fafb' : '#111827',
+            },
+          }}
         />
       </Stack>
     </View>
