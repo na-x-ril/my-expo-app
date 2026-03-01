@@ -5,13 +5,13 @@ import { Text } from 'react-native';
 import { useTheme } from '@/context/ThemeContext';
 import { ThemeToggle } from '@/components/ThemeToggle';
 
-interface MyAnimeListTitleProps {
+interface TabTitleProps {
   text: string;
   className?: string;
   isDark: boolean;
 }
 
-function MyAnimeTitle({ text, isDark, className }: MyAnimeListTitleProps) {
+function TabTitle({ text, isDark, className }: TabTitleProps) {
   return (
     <Text
       className={`${className ?? 'font-semibold'} text-4xl ${isDark ? 'text-indigo-200' : 'text-blue-800'}`}>
@@ -22,7 +22,6 @@ function MyAnimeTitle({ text, isDark, className }: MyAnimeListTitleProps) {
 
 export default function TabsLayout() {
   const { isDark } = useTheme();
-
   const headerBg = isDark ? '#111827' : '#ffffff';
 
   return (
@@ -32,9 +31,7 @@ export default function TabsLayout() {
         tabBarInactiveTintColor: isDark ? '#6b7280' : '#9ca3af',
         tabBarShowLabel: false,
         headerShadowVisible: false,
-        tabBarIconStyle: {
-          top: 10,
-        },
+        tabBarIconStyle: { top: 10 },
         tabBarStyle: {
           height: 75,
           backgroundColor: isDark ? '#111827' : '#ffffff',
@@ -47,11 +44,9 @@ export default function TabsLayout() {
       <Tabs.Screen
         name="index"
         options={{
-          tabBarLabel: 'Home',
           tabBarIcon: ({ color, size }) => <Ionicons name="home" size={size} color={color} />,
-          headerTitle: () => (
-            <MyAnimeTitle className="font-bold" text="My Animes" isDark={isDark} />
-          ),
+          // Header title hidden — the ScrollView content has its own "Discover" heading
+          headerTitle: () => <TabTitle className="font-bold" text="My Animes" isDark={isDark} />,
         }}
       />
       <Tabs.Screen
@@ -59,7 +54,7 @@ export default function TabsLayout() {
         options={{
           title: 'Search',
           tabBarIcon: ({ color, size }) => <Ionicons name="search" size={size} color={color} />,
-          headerTitle: () => <MyAnimeTitle text="Search" isDark={isDark} />,
+          headerTitle: () => <TabTitle text="Search" isDark={isDark} />,
         }}
       />
       <Tabs.Screen
@@ -67,7 +62,7 @@ export default function TabsLayout() {
         options={{
           title: 'Favorites',
           tabBarIcon: ({ color, size }) => <Ionicons name="heart" size={size} color={color} />,
-          headerTitle: () => <MyAnimeTitle text="Favorites" isDark={isDark} />,
+          headerTitle: () => <TabTitle text="Favorites" isDark={isDark} />,
         }}
       />
     </Tabs>
