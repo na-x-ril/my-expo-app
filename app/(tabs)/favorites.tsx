@@ -1,19 +1,25 @@
 // app/(tabs)/favorites.tsx
-import { useCallback } from 'react';
+import { useCallback, useRef, useState } from 'react';
 import { View, Text, FlatList } from 'react-native';
 import { useFavorites } from '@/features/favorites/useFavorites';
 import { AnimeCard } from '@/features/anime/components/AnimeCard';
 import { FilterSheet } from '@/features/anime/components/FilterSheet';
 import { FilterButton } from '@/features/anime/components/FilterButton';
 import { useAnimeFilters } from '@/features/anime/hooks/useAnimeFilters';
+import { BackToTopButton } from '@/components/BackToTopButton';
 import { useTheme } from '@/context/ThemeContext';
 import type { Anime } from '@/features/anime/types';
+
+const SCROLL_THRESHOLD = 300;
 
 export default function FavoritesScreen() {
   const { favorites, isFavorite, toggleFavorite } = useFavorites();
   const { isDark } = useTheme();
   const { filters, setFilters, filtered, sheetVisible, openSheet, closeSheet } =
     useAnimeFilters(favorites);
+
+  const listRef = useRef<FlatList>(null);
+  const [showBackToTop, setShowBackToTop] = useState(false);
 
   const renderItem = useCallback(
     ({ item }: { item: Anime }) => (
@@ -27,6 +33,14 @@ export default function FavoritesScreen() {
   );
 
   const keyExtractor = useCallback((item: Anime) => String(item.mal_id), []);
+
+  const handleScroll = useCallback((event: { nativeEvent: { contentOffset: { y: number } } }) => {
+    setShowBackToTop(event.nativeEvent.contentOffset.y > SCROLL_THRESHOLD);
+  }, []);
+
+  const handleBackToTop = useCallback(() => {
+    listRef.current?.scrollToOffset({ offset: 0, animated: true });
+  }, []);
 
   if (favorites.length === 0) {
     return (
@@ -43,6 +57,7 @@ export default function FavoritesScreen() {
   return (
     <>
       <FlatList
+        ref={listRef}
         key="favorites-grid"
         data={filtered}
         keyExtractor={keyExtractor}
@@ -51,12 +66,14 @@ export default function FavoritesScreen() {
         renderItem={renderItem}
         contentContainerClassName="px-4 pb-8"
         className={isDark ? 'bg-gray-900' : 'bg-gray-50'}
+        onScroll={handleScroll}
+        scrollEventThrottle={16}
         removeClippedSubviews
         maxToRenderPerBatch={6}
         windowSize={5}
         initialNumToRender={6}
         ListHeaderComponent={
-          <View className="mb-3 mt-4 flex-row items-center justify-between">
+          <View className="my-2 flex-row items-center justify-between">
             <Text className={`text-xs ${isDark ? 'text-gray-500' : 'text-gray-400'}`}>
               {filtered.length} of {favorites.length}
             </Text>
@@ -77,6 +94,7 @@ export default function FavoritesScreen() {
         onChange={setFilters}
         onClose={closeSheet}
       />
+      <BackToTopButton visible={showBackToTop} onPress={handleBackToTop} />
     </>
   );
 }

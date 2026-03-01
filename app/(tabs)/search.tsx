@@ -1,5 +1,5 @@
 // app/(tabs)/search.tsx
-import { useState, useCallback } from 'react';
+import { useState, useCallback, useRef } from 'react';
 import { View, Text, FlatList, ActivityIndicator, TextInput, TouchableOpacity } from 'react-native';
 import { Ionicons } from '@expo/vector-icons';
 import { useSearchAnime } from '@/features/anime/hooks/useSearchAnime';
@@ -9,6 +9,7 @@ import { FilterSheet } from '@/features/anime/components/FilterSheet';
 import { FilterButton } from '@/features/anime/components/FilterButton';
 import { useAnimeFilters } from '@/features/anime/hooks/useAnimeFilters';
 import { useFavorites } from '@/features/favorites/useFavorites';
+import { BackToTopButton } from '@/components/BackToTopButton';
 import { useTheme } from '@/context/ThemeContext';
 import type { Anime, AnimeListResponse } from '@/features/anime/types';
 import type { InfiniteData } from '@tanstack/react-query';
@@ -20,13 +21,16 @@ function extractAnimeList(data: InfiniteData<AnimeListResponse> | undefined): An
 }
 
 const SKELETON_DATA: ListItem[] = Array.from({ length: 6 }, (_, i) => ({ mal_id: -(i + 1) }));
+const SCROLL_THRESHOLD = 300;
 
 export default function SearchScreen() {
   const [query, setQuery] = useState('');
+  const [showBackToTop, setShowBackToTop] = useState(false);
   const { data, isLoading, isError, fetchNextPage, hasNextPage, isFetchingNextPage, refetch } =
     useSearchAnime(query);
   const { isFavorite, toggleFavorite } = useFavorites();
   const { isDark } = useTheme();
+  const listRef = useRef<FlatList>(null);
 
   const rawList = extractAnimeList(data);
   const { filters, setFilters, filtered, sheetVisible, openSheet, closeSheet } =
@@ -56,6 +60,14 @@ export default function SearchScreen() {
 
   const keyExtractor = useCallback((item: ListItem) => String(item.mal_id), []);
 
+  const handleScroll = useCallback((event: { nativeEvent: { contentOffset: { y: number } } }) => {
+    setShowBackToTop(event.nativeEvent.contentOffset.y > SCROLL_THRESHOLD);
+  }, []);
+
+  const handleBackToTop = useCallback(() => {
+    listRef.current?.scrollToOffset({ offset: 0, animated: true });
+  }, []);
+
   return (
     <View className={`flex-1 ${isDark ? 'bg-gray-900' : 'bg-gray-50'}`}>
       <View
@@ -82,6 +94,7 @@ export default function SearchScreen() {
       {showList && (
         <>
           <FlatList
+            ref={listRef}
             key="search-grid"
             data={listData}
             keyExtractor={keyExtractor}
@@ -93,13 +106,16 @@ export default function SearchScreen() {
             refreshing={false}
             onEndReached={onEndReached}
             onEndReachedThreshold={0.4}
+            onScroll={handleScroll}
+            scrollEventThrottle={16}
+            extraData={filters}
             removeClippedSubviews
             maxToRenderPerBatch={6}
             windowSize={5}
             initialNumToRender={6}
             ListHeaderComponent={
               !isLoading ? (
-                <View className="mb-3 mt-2 flex-row items-center justify-between">
+                <View className="mb-2 flex-row items-center justify-between">
                   <Text className={`text-xs ${isDark ? 'text-gray-500' : 'text-gray-400'}`}>
                     {filtered.length} results
                   </Text>
@@ -128,6 +144,7 @@ export default function SearchScreen() {
             onChange={setFilters}
             onClose={closeSheet}
           />
+          <BackToTopButton visible={showBackToTop} onPress={handleBackToTop} />
         </>
       )}
     </View>

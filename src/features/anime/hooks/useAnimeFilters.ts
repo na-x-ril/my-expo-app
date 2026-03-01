@@ -2,8 +2,7 @@
 import { useState, useCallback, useMemo } from 'react';
 import { DEFAULT_FILTERS } from '../types/filter';
 import { filterAndSortAnime } from '../utils/filterAnime';
-import type { AnimeFilters } from '../types/filter';
-import type { Anime } from '../types';
+import type { Anime, AnimeFilters } from '../types';
 
 export function useAnimeFilters(list: Anime[]) {
   const [filters, setFilters] = useState<AnimeFilters>(DEFAULT_FILTERS);

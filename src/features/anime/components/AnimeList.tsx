@@ -1,5 +1,5 @@
 // src/features/anime/components/AnimeList.tsx
-import { useCallback } from 'react';
+import { useCallback, useRef } from 'react';
 import { FlatList, ActivityIndicator, View, Text } from 'react-native';
 import type { InfiniteData, UseInfiniteQueryResult } from '@tanstack/react-query';
 import { AnimeCard } from './AnimeCard';
@@ -13,6 +13,8 @@ import type { AnimeListResponse, Anime } from '../types';
 
 interface AnimeListProps {
   query: UseInfiniteQueryResult<InfiniteData<AnimeListResponse>, Error>;
+  listRef?: React.RefObject<FlatList | null>;
+  onScroll?: (event: { nativeEvent: { contentOffset: { y: number } } }) => void;
 }
 
 type ListItem = Anime | { mal_id: number };
@@ -23,9 +25,10 @@ function extractAnimeList(data: InfiniteData<AnimeListResponse> | undefined): An
 
 const SKELETON_DATA: ListItem[] = Array.from({ length: 6 }, (_, i) => ({ mal_id: -(i + 1) }));
 
-export function AnimeList({ query }: AnimeListProps) {
+export function AnimeList({ query, listRef, onScroll }: AnimeListProps) {
   const { isFavorite, toggleFavorite } = useFavorites();
   const { isDark } = useTheme();
+  const internalRef = useRef<FlatList | null>(null);
   const { data, isLoading, isError, fetchNextPage, hasNextPage, isFetchingNextPage, refetch } =
     query;
 
@@ -59,6 +62,7 @@ export function AnimeList({ query }: AnimeListProps) {
   return (
     <>
       <FlatList
+        ref={listRef ?? internalRef}
         key="anime-grid"
         data={listData}
         keyExtractor={keyExtractor}
@@ -71,13 +75,16 @@ export function AnimeList({ query }: AnimeListProps) {
         refreshing={false}
         onEndReached={onEndReached}
         onEndReachedThreshold={0.4}
+        onScroll={onScroll}
+        scrollEventThrottle={16}
+        extraData={filters}
         removeClippedSubviews
         maxToRenderPerBatch={6}
         windowSize={5}
         initialNumToRender={6}
         ListHeaderComponent={
           !isLoading ? (
-            <View className="mb-3 mt-4 flex-row items-center justify-between">
+            <View className="mb-2 flex-row items-center justify-between">
               <Text className={`text-xs ${isDark ? 'text-gray-500' : 'text-gray-400'}`}>
                 {filtered.length} results
               </Text>

@@ -3,8 +3,7 @@ import { memo } from 'react';
 import { TouchableOpacity, Text } from 'react-native';
 import { Ionicons } from '@expo/vector-icons';
 import { useTheme } from '@/context/ThemeContext';
-import type { AnimeFilters } from '../types/filter';
-import { DEFAULT_FILTERS } from '../types/filter';
+import { type AnimeFilters, DEFAULT_FILTERS } from '../types';
 
 interface FilterButtonProps {
   filters: AnimeFilters;

@@ -1,6 +1,5 @@
 // src/features/anime/utils/filterAnime.ts
-import type { Anime } from '../types';
-import type { AnimeFilters } from '../types/filter';
+import type { Anime, AnimeFilters } from '../types';
 
 export function filterAndSortAnime(list: Anime[], filters: AnimeFilters): Anime[] {
   let result = [...list];
@@ -10,22 +9,41 @@ export function filterAndSortAnime(list: Anime[], filters: AnimeFilters): Anime[
   }
 
   if (filters.status !== 'All') {
-    const airing = filters.status === 'Airing';
-    result = result.filter((a) => a.airing === airing);
+    result = result.filter((a) => {
+      if (filters.status === 'Airing') return a.airing === true;
+      if (filters.status === 'Finished') return a.airing === false;
+      return true;
+    });
   }
 
   result.sort((a, b) => {
-    let diff = 0;
+    let valA: number | string;
+    let valB: number | string;
 
-    if (filters.sortKey === 'score') {
-      diff = (a.score ?? 0) - (b.score ?? 0);
-    } else if (filters.sortKey === 'title') {
-      diff = a.title.localeCompare(b.title);
-    } else if (filters.sortKey === 'episodes') {
-      diff = (a.episodes ?? 0) - (b.episodes ?? 0);
+    switch (filters.sortKey) {
+      case 'score':
+        valA = a.score ?? -1;
+        valB = b.score ?? -1;
+        break;
+      case 'title':
+        valA = a.title.toLowerCase();
+        valB = b.title.toLowerCase();
+        break;
+      case 'episodes':
+        valA = a.episodes ?? -1;
+        valB = b.episodes ?? -1;
+        break;
+      case 'addedAt':
+        valA = (a as Anime & { addedAt?: number }).addedAt ?? 0;
+        valB = (b as Anime & { addedAt?: number }).addedAt ?? 0;
+        break;
+      default:
+        return 0;
     }
 
-    return filters.sortOrder === 'asc' ? diff : -diff;
+    if (valA < valB) return filters.sortOrder === 'asc' ? -1 : 1;
+    if (valA > valB) return filters.sortOrder === 'asc' ? 1 : -1;
+    return 0;
   });
 
   return result;

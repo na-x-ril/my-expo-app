@@ -1,5 +1,4 @@
-// src/features/anime/types.ts
-
+// src/features/anime/types/anime.ts
 export interface AnimeImage {
   jpg: {
     image_url: string;
@@ -68,26 +67,4 @@ export interface Anime {
   broadcast: AnimeBroadcast;
   genres: AnimeGenre[];
   studios: AnimeStudio[];
-}
-
-export interface PaginationItems {
-  count: number;
-  total: number;
-  per_page: number;
-}
-
-export interface Pagination {
-  last_visible_page: number;
-  has_next_page: boolean;
-  current_page: number;
-  items: PaginationItems;
-}
-
-export interface AnimeListResponse {
-  data: Anime[];
-  pagination: Pagination;
-}
-
-export interface AnimeDetailResponse {
-  data: Anime;
 }

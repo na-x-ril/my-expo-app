@@ -59,7 +59,7 @@ export const AnimeCard = memo(function AnimeCard({
       </View>
       <View className="p-2">
         <Text
-          className={`text-xs font-semibold leading-tight ${isDark ? 'text-gray-100' : 'text-gray-900'}`}
+          className={`text-md font-semibold leading-tight ${isDark ? 'text-gray-100' : 'text-gray-900'}`}
           numberOfLines={2}>
           {anime.title}
         </Text>

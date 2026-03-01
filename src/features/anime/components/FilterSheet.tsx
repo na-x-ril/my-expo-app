@@ -3,7 +3,7 @@ import { memo, useCallback } from 'react';
 import { View, Text, TouchableOpacity, Modal, Pressable } from 'react-native';
 import { Ionicons } from '@expo/vector-icons';
 import { useTheme } from '@/context/ThemeContext';
-import type { AnimeFilters, SortKey, AnimeTypeFilter, AnimeStatusFilter } from '../types/filter';
+import type { AnimeFilters, SortKey, AnimeTypeFilter, AnimeStatusFilter } from '../types';
 
 interface FilterSheetProps {
   visible: boolean;
