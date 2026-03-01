@@ -1,141 +1,101 @@
 // app/(tabs)/index.tsx
-import { useState, useRef, useCallback } from 'react';
-import { View, Pressable, Animated, Easing, FlatList } from 'react-native';
+import { useRef, useCallback } from 'react';
+import { ScrollView, View, Text, RefreshControl } from 'react-native';
+import { useTheme } from '@/context/ThemeContext';
+import { AnimeSection } from '@/features/anime/components/AnimeSection';
 import { useTopAnime } from '@/features/anime/hooks/useTopAnime';
 import { useSeasonalAnime } from '@/features/anime/hooks/useSeasonalAnime';
-import { AnimeList } from '@/features/anime/components/AnimeList';
-import { BackToTopButton } from '@/components/BackToTopButton';
-import { useTheme } from '@/context/ThemeContext';
+import { useUpcomingAnime } from '@/features/anime/hooks/useUpcomingAnime';
+import { usePopularAnime } from '@/features/anime/hooks/usePopularAnime';
+import type { Anime } from '@/features/anime/types';
 
-type Tab = 'top' | 'seasonal';
-
-const SCROLL_THRESHOLD = 300;
+function flattenPages(data: any): Anime[] {
+  return data?.pages?.flatMap((p: any) => p.data) ?? [];
+}
 
 export default function HomeScreen() {
-  const [activeTab, setActiveTab] = useState<Tab>('top');
-  const [showBackToTop, setShowBackToTop] = useState(false);
-  const topAnimeQuery = useTopAnime();
-  const seasonalAnimeQuery = useSeasonalAnime();
   const { isDark } = useTheme();
+  const scrollRef = useRef(null);
 
-  const listRef = useRef<FlatList>(null);
-  const topBg = useRef(new Animated.Value(1)).current;
-  const seasonalBg = useRef(new Animated.Value(0)).current;
+  const topQuery = useTopAnime();
+  const seasonalQuery = useSeasonalAnime();
+  const upcomingQuery = useUpcomingAnime();
+  const popularQuery = usePopularAnime();
 
-  const animateTab = useCallback(
-    (tab: Tab) => {
-      Animated.parallel([
-        Animated.timing(topBg, {
-          toValue: tab === 'top' ? 1 : 0,
-          duration: 200,
-          easing: Easing.ease,
-          useNativeDriver: false,
-        }),
-        Animated.timing(seasonalBg, {
-          toValue: tab === 'seasonal' ? 1 : 0,
-          duration: 200,
-          easing: Easing.ease,
-          useNativeDriver: false,
-        }),
-      ]).start();
-    },
-    [topBg, seasonalBg]
-  );
+  const topAnime = flattenPages(topQuery.data).slice(0, 10);
+  const seasonalAnime = flattenPages(seasonalQuery.data).slice(0, 10);
+  const upcomingAnime = flattenPages(upcomingQuery.data).slice(0, 10);
+  const popularAnime = popularQuery.data?.data?.slice(0, 10) ?? [];
 
-  const handleTabPress = useCallback(
-    (tab: Tab) => {
-      if (tab === activeTab) return;
-      setActiveTab(tab);
-      animateTab(tab);
-      setShowBackToTop(false);
-    },
-    [activeTab, animateTab]
-  );
+  const isRefreshing =
+    topQuery.isRefetching ||
+    seasonalQuery.isRefetching ||
+    upcomingQuery.isRefetching ||
+    popularQuery.isRefetching;
 
-  const handleScroll = useCallback((event: { nativeEvent: { contentOffset: { y: number } } }) => {
-    setShowBackToTop(event.nativeEvent.contentOffset.y > SCROLL_THRESHOLD);
-  }, []);
-
-  const handleBackToTop = useCallback(() => {
-    listRef.current?.scrollToOffset({ offset: 0, animated: true });
-  }, []);
-
-  const inactiveBg = isDark ? 'rgba(31,41,55,1)' : 'rgba(255,255,255,1)';
-  const inactiveBorder = isDark ? 'rgba(55,65,81,1)' : 'rgba(229,231,235,1)';
-
-  const topBgColor = topBg.interpolate({
-    inputRange: [0, 1],
-    outputRange: [inactiveBg, 'rgba(99,102,241,1)'],
-  });
-
-  const topBorderColor = topBg.interpolate({
-    inputRange: [0, 1],
-    outputRange: [inactiveBorder, 'rgba(99,102,241,1)'],
-  });
-
-  const seasonalBgColor = seasonalBg.interpolate({
-    inputRange: [0, 1],
-    outputRange: [inactiveBg, 'rgba(99,102,241,1)'],
-  });
-
-  const seasonalBorderColor = seasonalBg.interpolate({
-    inputRange: [0, 1],
-    outputRange: [inactiveBorder, 'rgba(99,102,241,1)'],
-  });
-
-  const topTextColor = topBg.interpolate({
-    inputRange: [0, 1],
-    outputRange: [isDark ? '#d1d5db' : '#4b5563', '#ffffff'],
-  });
-
-  const seasonalTextColor = seasonalBg.interpolate({
-    inputRange: [0, 1],
-    outputRange: [isDark ? '#d1d5db' : '#4b5563', '#ffffff'],
-  });
+  const onRefresh = useCallback(() => {
+    topQuery.refetch();
+    seasonalQuery.refetch();
+    upcomingQuery.refetch();
+    popularQuery.refetch();
+  }, [topQuery, seasonalQuery, upcomingQuery, popularQuery]);
 
   return (
-    <View className={`flex-1 ${isDark ? 'bg-gray-900' : 'bg-white'}`}>
-      <View className="mx-4 my-2 flex-row gap-2">
-        <Pressable className="flex-1" onPress={() => handleTabPress('top')}>
-          <Animated.View
-            style={{
-              borderRadius: 14,
-              paddingVertical: 8,
-              alignItems: 'center',
-              backgroundColor: topBgColor,
-              borderWidth: 1,
-              borderColor: topBorderColor,
-            }}>
-            <Animated.Text style={{ fontWeight: '600', fontSize: 16, color: topTextColor }}>
-              Top Anime
-            </Animated.Text>
-          </Animated.View>
-        </Pressable>
-
-        <Pressable className="flex-1" onPress={() => handleTabPress('seasonal')}>
-          <Animated.View
-            style={{
-              borderRadius: 14,
-              paddingVertical: 8,
-              alignItems: 'center',
-              backgroundColor: seasonalBgColor,
-              borderWidth: 1,
-              borderColor: seasonalBorderColor,
-            }}>
-            <Animated.Text style={{ fontWeight: '600', fontSize: 16, color: seasonalTextColor }}>
-              Seasonal
-            </Animated.Text>
-          </Animated.View>
-        </Pressable>
+    <ScrollView
+      ref={scrollRef}
+      className={`flex-1 ${isDark ? 'bg-gray-900' : 'bg-white'}`}
+      showsVerticalScrollIndicator={false}
+      refreshControl={
+        <RefreshControl
+          refreshing={isRefreshing}
+          onRefresh={onRefresh}
+          tintColor="#6366f1"
+          colors={['#6366f1']}
+        />
+      }>
+      {/* Page header */}
+      <View className="px-4 pb-2 pt-2">
+        <Text className={`text-3xl font-bold ${isDark ? 'text-gray-100' : 'text-gray-900'}`}>
+          Discover
+        </Text>
+        <Text className={`mt-0.5 text-sm ${isDark ? 'text-gray-500' : 'text-gray-500'}`}>
+          {`What's on the anime world today`}
+        </Text>
       </View>
 
-      <AnimeList
-        query={activeTab === 'top' ? topAnimeQuery : seasonalAnimeQuery}
-        listRef={listRef}
-        onScroll={handleScroll}
+      <AnimeSection
+        title="Top Anime"
+        subtitle="Highest rated of all time"
+        data={topAnime}
+        isLoading={topQuery.isLoading}
+        accentColor="#6366f1"
       />
 
-      <BackToTopButton visible={showBackToTop} onPress={handleBackToTop} />
-    </View>
+      <AnimeSection
+        title="This Season"
+        subtitle="Currently airing"
+        data={seasonalAnime}
+        isLoading={seasonalQuery.isLoading}
+        accentColor="#10b981"
+      />
+
+      <AnimeSection
+        title="Most Popular"
+        subtitle="All-time favourite by members"
+        data={popularAnime}
+        isLoading={popularQuery.isLoading}
+        accentColor="#f59e0b"
+      />
+
+      <AnimeSection
+        title="Coming Soon"
+        subtitle="Next season lineup"
+        data={upcomingAnime}
+        isLoading={upcomingQuery.isLoading}
+        accentColor="#ec4899"
+      />
+
+      <View className="h-8" />
+    </ScrollView>
   );
 }
