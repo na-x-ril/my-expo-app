@@ -1,15 +1,8 @@
 // app/anime/[id].tsx
 import { useRef, useState, useCallback } from 'react';
-import {
-  ScrollView,
-  View,
-  Text,
-  TouchableOpacity,
-  Dimensions,
-  ActivityIndicator,
-} from 'react-native';
+import { ScrollView, View, Text, TouchableOpacity, Dimensions } from 'react-native';
 import { Image } from 'expo-image';
-import { useLocalSearchParams, useRouter } from 'expo-router';
+import { useLocalSearchParams } from 'expo-router';
 import { Ionicons } from '@expo/vector-icons';
 import { useAnimeDetail } from '@/features/anime/hooks/useAnimeDetail';
 import {
@@ -21,157 +14,12 @@ import { useFavorites } from '@/features/favorites/useFavorites';
 import { DetailSkeleton } from '@/features/anime/components/skeletons/DetailSkeleton';
 import { BackToTopButton } from '@/components/BackToTopButton';
 import { useTheme } from '@/context/ThemeContext';
-import type {
-  AnimeCharacter,
-  AnimeStaffEntry,
-  RecommendationEntry,
-} from '@/features/anime/types/detail';
+import { SectionTitle, StatBadge, HorizontalSection, MediaCard } from '@/components/ui';
 
 const blurhash = 'L6PZfSi_.AyE_3t7t7R**0o#DgR4';
 const SCROLL_THRESHOLD = 300;
 const { width: SCREEN_WIDTH } = Dimensions.get('window');
-
-// ─── Small reusable pieces ────────────────────────────────────────────────────
-
-function SectionTitle({ title, isDark }: { title: string; isDark: boolean }) {
-  return (
-    <View className="mb-3 flex-row items-center gap-2">
-      <View className="h-5 w-1 rounded-full bg-indigo-500" />
-      <Text className={`text-lg font-bold ${isDark ? 'text-gray-100' : 'text-gray-900'}`}>
-        {title}
-      </Text>
-    </View>
-  );
-}
-
-function StatBadge({ label, value, isDark }: { label: string; value: string; isDark: boolean }) {
-  return (
-    <View className={`flex-1 items-center py-3`}>
-      <Text className={`w-full text-center text-sm ${isDark ? 'text-gray-400' : 'text-gray-500'}`}>
-        {label}
-      </Text>
-      <Text className={`mt-0.5 text-lg font-bold ${isDark ? 'text-gray-100' : 'text-gray-900'}`}>
-        {value}
-      </Text>
-    </View>
-  );
-}
-
-function SectionLoader({ isDark }: { isDark: boolean }) {
-  return (
-    <View
-      className={`h-28 items-center justify-center rounded-xl ${isDark ? 'bg-gray-800' : 'bg-gray-100'}`}>
-      <ActivityIndicator color="#6366f1" />
-    </View>
-  );
-}
-
-// ─── Characters section ───────────────────────────────────────────────────────
-
-function CharacterCard({ item, isDark }: { item: AnimeCharacter; isDark: boolean }) {
-  const jaVA = item.voice_actors.find((v) => v.language === 'Japanese');
-  return (
-    <View
-      style={{ width: 130 }}
-      className={`mr-3 overflow-hidden rounded-xl ${isDark ? 'bg-gray-800' : 'bg-white'}`}>
-      <Image
-        source={{ uri: item.character.images.jpg.image_url }}
-        style={{ width: 130, height: 170 }}
-        contentFit="cover"
-        placeholder={blurhash}
-        cachePolicy="memory-disk"
-        transition={150}
-      />
-      <View className="p-2">
-        <Text
-          className={`text-lg font-semibold leading-tight ${isDark ? 'text-gray-100' : 'text-gray-900'}`}
-          numberOfLines={2}>
-          {item.character.name}
-        </Text>
-        <Text className={`mt-0.5 text-sm ${isDark ? 'text-indigo-400' : 'text-indigo-500'}`}>
-          {item.role}
-        </Text>
-        {jaVA && (
-          <Text
-            className={`mt-1 text-sm ${isDark ? 'text-gray-400' : 'text-gray-500'}`}
-            numberOfLines={1}>
-            {jaVA.person.name}
-          </Text>
-        )}
-      </View>
-    </View>
-  );
-}
-
-// ─── Staff section ────────────────────────────────────────────────────────────
-
-function StaffCard({ item, isDark }: { item: AnimeStaffEntry; isDark: boolean }) {
-  return (
-    <View
-      style={{ width: 130 }}
-      className={`mr-3 overflow-hidden rounded-xl ${isDark ? 'bg-gray-800' : 'bg-white'}`}>
-      <Image
-        source={{ uri: item.person.images.jpg.image_url }}
-        style={{ width: 130, height: 170 }}
-        contentFit="cover"
-        placeholder={blurhash}
-        cachePolicy="memory-disk"
-        transition={150}
-      />
-      <View className="p-2">
-        <Text
-          className={`text-lg font-semibold leading-tight ${isDark ? 'text-gray-100' : 'text-gray-900'}`}
-          numberOfLines={2}>
-          {item.person.name}
-        </Text>
-        <Text
-          className={`mt-0.5 text-sm ${isDark ? 'text-gray-400' : 'text-gray-500'}`}
-          numberOfLines={2}>
-          {item.positions.join(', ')}
-        </Text>
-      </View>
-    </View>
-  );
-}
-
-// ─── Recommendation card ──────────────────────────────────────────────────────
-
-function RecommendationCard({ item, isDark }: { item: RecommendationEntry; isDark: boolean }) {
-  const router = useRouter();
-  return (
-    <TouchableOpacity
-      style={{ width: 120 }}
-      className={`mr-3 overflow-hidden rounded-xl ${isDark ? 'bg-gray-800' : 'bg-white'}`}
-      activeOpacity={0.8}
-      onPress={() => router.push(`/anime/${item.entry.mal_id}`)}>
-      <Image
-        source={{ uri: item.entry.images.jpg.image_url }}
-        style={{ width: 120, height: 165 }}
-        contentFit="cover"
-        placeholder={blurhash}
-        cachePolicy="memory-disk"
-        transition={150}
-      />
-      <View className="p-2">
-        <Text
-          className={`text-md font-semibold leading-tight ${isDark ? 'text-gray-100' : 'text-gray-900'}`}
-          numberOfLines={2}>
-          {item.entry.title}
-        </Text>
-        {item.votes > 0 && (
-          <View className="mt-1 flex-row items-center gap-0.5">
-            <Ionicons name="thumbs-up-outline" size={10} color={isDark ? '#9ca3af' : '#6b7280'} />
-            <Text className={`text-sm ${isDark ? 'text-gray-500' : 'text-gray-500'}`}>
-              {item.votes}
-            </Text>
-          </View>
-        )}
-      </View>
-    </TouchableOpacity>
-  );
-}
-
-// ─── Main screen ──────────────────────────────────────────────────────────────
+const CARD_WIDTH = 130;
 
 export default function AnimeDetailScreen() {
   const { id } = useLocalSearchParams<{ id: string }>();
@@ -211,7 +59,6 @@ export default function AnimeDetailScreen() {
   const anime = data.data;
   const favorited = isFavorite(anime.mal_id);
 
-  // Prepare data slices
   const characters = charsData?.data
     ? [...charsData.data].sort((a, b) => b.favorites - a.favorites).slice(0, 20)
     : [];
@@ -229,7 +76,6 @@ export default function AnimeDetailScreen() {
         contentContainerClassName="pb-12"
         onScroll={handleScroll}
         scrollEventThrottle={16}>
-        {/* Hero image */}
         <Image
           source={{ uri: anime.images.jpg.large_image_url }}
           style={{ width: SCREEN_WIDTH, height: 460 }}
@@ -239,7 +85,6 @@ export default function AnimeDetailScreen() {
           transition={200}
         />
 
-        {/* Title + favourite */}
         <View className="px-4 pt-4">
           <View className="flex-row items-start justify-between">
             <View className="flex-1 pr-3">
@@ -291,23 +136,14 @@ export default function AnimeDetailScreen() {
 
           {/* Stat badges */}
           <View className={`mt-4 flex-row gap-2 rounded-2xl py-1 ${cardBg}`}>
-            <StatBadge label="Score" value={anime.score?.toFixed(1) ?? 'N/A'} isDark={isDark} />
-            <StatBadge label="Rank" value={anime.rank ? `#${anime.rank}` : 'N/A'} isDark={isDark} />
-            <StatBadge
-              label="Episodes"
-              value={anime.episodes ? String(anime.episodes) : '?'}
-              isDark={isDark}
-            />
-            <StatBadge
-              label="Status"
-              value={anime.airing ? 'Airing' : 'Finished'}
-              isDark={isDark}
-            />
+            <StatBadge label="Score" value={anime.score?.toFixed(1) ?? 'N/A'} />
+            <StatBadge label="Rank" value={anime.rank ? `#${anime.rank}` : 'N/A'} />
+            <StatBadge label="Episodes" value={anime.episodes ? String(anime.episodes) : '?'} />
+            <StatBadge label="Status" value={anime.airing ? 'Airing' : 'Finished'} />
           </View>
 
-          {/* Extra info row */}
           <View className={`mt-2 flex-row gap-2 rounded-2xl py-1 ${cardBg}`}>
-            <StatBadge label="Type" value={anime.type ?? 'Unknown'} isDark={isDark} />
+            <StatBadge label="Type" value={anime.type ?? 'Unknown'} />
             <StatBadge
               label="Season"
               value={
@@ -317,17 +153,14 @@ export default function AnimeDetailScreen() {
                     ? String(anime.year)
                     : 'N/A'
               }
-              isDark={isDark}
             />
-            <StatBadge label="Source" value={anime.source ?? 'N/A'} isDark={isDark} />
+            <StatBadge label="Source" value={anime.source ?? 'N/A'} />
             <StatBadge
               label="Popularity"
               value={anime.popularity ? `#${anime.popularity}` : 'N/A'}
-              isDark={isDark}
             />
           </View>
 
-          {/* Studios & Broadcast */}
           {(anime.studios.length > 0 || anime.broadcast?.string) && (
             <View className="mt-2 flex-row gap-2">
               {anime.studios.length > 0 && (
@@ -359,10 +192,9 @@ export default function AnimeDetailScreen() {
             </View>
           )}
 
-          {/* Synopsis */}
           {anime.synopsis && (
             <View className="mt-4">
-              <SectionTitle title="Synopsis" isDark={isDark} />
+              <SectionTitle title="Synopsis" />
               <Text
                 className={`text-sm leading-relaxed ${isDark ? 'text-gray-300' : 'text-gray-700'}`}
                 numberOfLines={synopsisExpanded ? undefined : 5}>
@@ -380,78 +212,55 @@ export default function AnimeDetailScreen() {
           )}
         </View>
 
-        {/* ─── Characters ─────────────────────────────────────── */}
-        <View className="mt-6 px-4">
-          <SectionTitle title="Characters" isDark={isDark} />
-        </View>
-        {charsLoading ? (
-          <View className="px-4">
-            <SectionLoader isDark={isDark} />
-          </View>
-        ) : characters.length > 0 ? (
-          <ScrollView
-            horizontal
-            nestedScrollEnabled
-            showsHorizontalScrollIndicator={false}
-            contentContainerStyle={{ paddingHorizontal: 16 }}>
-            {characters.map((item) => (
-              <CharacterCard key={item.character.mal_id} item={item} isDark={isDark} />
-            ))}
-          </ScrollView>
-        ) : null}
+        <HorizontalSection title="Characters" isLoading={charsLoading}>
+          {characters.map((item) => {
+            const jaVA = item.voice_actors.find((v) => v.language === 'Japanese');
+            return (
+              <MediaCard
+                key={item.character.mal_id}
+                variant="character"
+                width={CARD_WIDTH}
+                imageUrl={item.character.images.jpg.image_url}
+                title={item.character.name}
+                subtitle={item.role}
+                voiceActor={jaVA?.person.name}
+              />
+            );
+          })}
+        </HorizontalSection>
 
-        {/* ─── Staff ──────────────────────────────────────────── */}
-        <View className="mt-6 px-4">
-          <SectionTitle title="Staff" isDark={isDark} />
-        </View>
-        {staffLoading ? (
-          <View className="px-4">
-            <SectionLoader isDark={isDark} />
-          </View>
-        ) : staff.length > 0 ? (
-          <ScrollView
-            horizontal
-            nestedScrollEnabled
-            showsHorizontalScrollIndicator={false}
-            contentContainerStyle={{ paddingHorizontal: 16 }}>
-            {staff.map((item) => (
-              <StaffCard key={item.person.mal_id} item={item} isDark={isDark} />
-            ))}
-          </ScrollView>
-        ) : null}
+        <HorizontalSection title="Staff" isLoading={staffLoading}>
+          {staff.map((item) => (
+            <MediaCard
+              key={item.person.mal_id}
+              variant="staff"
+              width={CARD_WIDTH}
+              imageUrl={item.person.images.jpg.image_url}
+              title={item.person.name}
+              positions={item.positions}
+            />
+          ))}
+        </HorizontalSection>
 
-        {/* ─── Recommendations ────────────────────────────────── */}
         {(recsLoading || recommendations.length > 0) && (
-          <>
-            <View className="mt-6 px-4">
-              <SectionTitle title="You Might Also Like" isDark={isDark} />
-            </View>
-            {recsLoading ? (
-              <View className="px-4">
-                <SectionLoader isDark={isDark} />
-              </View>
-            ) : (
-              <ScrollView
-                horizontal
-                nestedScrollEnabled
-                showsHorizontalScrollIndicator={false}
-                contentContainerStyle={{ paddingHorizontal: 16 }}>
-                {recommendations.map((item, idx) => (
-                  <RecommendationCard
-                    key={`${item.entry.mal_id}-${idx}`}
-                    item={item}
-                    isDark={isDark}
-                  />
-                ))}
-              </ScrollView>
-            )}
-          </>
+          <HorizontalSection title="You Might Also Like" isLoading={recsLoading}>
+            {recommendations.map((item, idx) => (
+              <MediaCard
+                key={`${item.entry.mal_id}-${idx}`}
+                variant="recommendation"
+                width={120}
+                imageUrl={item.entry.images.jpg.image_url}
+                title={item.entry.title}
+                votes={item.votes}
+                animeId={item.entry.mal_id}
+              />
+            ))}
+          </HorizontalSection>
         )}
 
-        {/* ─── Background ─────────────────────────────────────── */}
         {anime.background && (
           <View className="mt-6 px-4">
-            <SectionTitle title="Background" isDark={isDark} />
+            <SectionTitle title="Background" />
             <Text
               className={`text-sm leading-relaxed ${isDark ? 'text-gray-400' : 'text-gray-600'}`}>
               {anime.background}
