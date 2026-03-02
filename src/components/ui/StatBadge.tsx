@@ -1,4 +1,5 @@
 // src/components/ui/StatBadge.tsx
+import { memo } from 'react';
 import { View, Text } from 'react-native';
 import { useTheme } from '@/context/ThemeContext';
 
@@ -7,7 +8,7 @@ interface StatBadgeProps {
   value: string;
 }
 
-export function StatBadge({ label, value }: StatBadgeProps) {
+export const StatBadge = memo(function StatBadge({ label, value }: StatBadgeProps) {
   const { isDark } = useTheme();
 
   return (
@@ -20,4 +21,4 @@ export function StatBadge({ label, value }: StatBadgeProps) {
       </Text>
     </View>
   );
-}
+});

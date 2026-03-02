@@ -1,5 +1,5 @@
 // src/components/ui/HorizontalSection.tsx
-import { ReactNode } from 'react';
+import { memo, ReactNode } from 'react';
 import { View, ScrollView } from 'react-native';
 import { SectionTitle } from './SectionTitle';
 import { SectionLoader } from './SectionLoader';
@@ -11,7 +11,7 @@ interface HorizontalSectionProps {
   children: ReactNode;
 }
 
-export function HorizontalSection({
+export const HorizontalSection = memo(function HorizontalSection({
   title,
   accentColor = '#6366f1',
   isLoading = false,
@@ -37,4 +37,4 @@ export function HorizontalSection({
       )}
     </View>
   );
-}
+});

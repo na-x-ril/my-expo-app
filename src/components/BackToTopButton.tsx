@@ -1,5 +1,5 @@
 // src/components/BackToTopButton.tsx
-import { useEffect, useRef } from 'react';
+import { memo, useEffect, useRef } from 'react';
 import { Animated, TouchableOpacity, Easing } from 'react-native';
 import { Ionicons } from '@expo/vector-icons';
 import { useTheme } from '@/context/ThemeContext';
@@ -9,7 +9,10 @@ interface BackToTopButtonProps {
   onPress: () => void;
 }
 
-export function BackToTopButton({ visible, onPress }: BackToTopButtonProps) {
+export const BackToTopButton = memo(function BackToTopButton({
+  visible,
+  onPress,
+}: BackToTopButtonProps) {
   const { isDark } = useTheme();
   const opacity = useRef(new Animated.Value(0)).current;
   const translateY = useRef(new Animated.Value(16)).current;
@@ -61,4 +64,4 @@ export function BackToTopButton({ visible, onPress }: BackToTopButtonProps) {
       </TouchableOpacity>
     </Animated.View>
   );
-}
+});

@@ -1,5 +1,5 @@
 // src/components/ui/MediaCard.tsx
-import { memo } from 'react';
+import { memo, useCallback } from 'react';
 import { View, Text, TouchableOpacity } from 'react-native';
 import { Image } from 'expo-image';
 import { Ionicons } from '@expo/vector-icons';
@@ -35,7 +35,7 @@ interface RecommendationCardProps extends BaseMediaCardProps {
 
 type MediaCardProps = CharacterCardProps | StaffCardProps | RecommendationCardProps;
 
-function CharacterCardContent({
+const CharacterCardContent = memo(function CharacterCardContent({
   subtitle,
   voiceActor,
   isDark,
@@ -60,9 +60,15 @@ function CharacterCardContent({
       )}
     </View>
   );
-}
+});
 
-function StaffCardContent({ positions, isDark }: { positions: string[]; isDark: boolean }) {
+const StaffCardContent = memo(function StaffCardContent({
+  positions,
+  isDark,
+}: {
+  positions: string[];
+  isDark: boolean;
+}) {
   return (
     <View className="p-2">
       <Text
@@ -72,9 +78,15 @@ function StaffCardContent({ positions, isDark }: { positions: string[]; isDark: 
       </Text>
     </View>
   );
-}
+});
 
-function RecommendationCardContent({ votes, isDark }: { votes?: number; isDark: boolean }) {
+const RecommendationCardContent = memo(function RecommendationCardContent({
+  votes,
+  isDark,
+}: {
+  votes?: number;
+  isDark: boolean;
+}) {
   return (
     <View className="p-2">
       {votes !== undefined && votes > 0 && (
@@ -85,7 +97,7 @@ function RecommendationCardContent({ votes, isDark }: { votes?: number; isDark: 
       )}
     </View>
   );
-}
+});
 
 export const MediaCard = memo(function MediaCard(props: MediaCardProps) {
   const { width, imageUrl, title, variant } = props;
@@ -94,38 +106,47 @@ export const MediaCard = memo(function MediaCard(props: MediaCardProps) {
 
   const imageHeight = width * 1.3;
 
-  const content = () => {
+  const content = useCallback(() => {
     switch (variant) {
-      case 'character':
+      case 'character': {
+        const characterProps = props as CharacterCardProps;
         return (
           <CharacterCardContent
-            subtitle={props.subtitle}
-            voiceActor={props.voiceActor}
+            subtitle={characterProps.subtitle}
+            voiceActor={characterProps.voiceActor}
             isDark={isDark}
           />
         );
-      case 'staff':
-        return <StaffCardContent positions={props.positions} isDark={isDark} />;
-      case 'recommendation':
-        return <RecommendationCardContent votes={props.votes} isDark={isDark} />;
+      }
+      case 'staff': {
+        const staffProps = props as StaffCardProps;
+        return <StaffCardContent positions={staffProps.positions} isDark={isDark} />;
+      }
+      case 'recommendation': {
+        const recProps = props as RecommendationCardProps;
+        return <RecommendationCardContent votes={recProps.votes} isDark={isDark} />;
+      }
       default:
         return null;
     }
-  };
+  }, [variant, props, isDark]);
 
-  const handlePress = () => {
-    if (props.variant === 'recommendation' && props.animeId) {
-      router.push(`/anime/${props.animeId}`);
+  const handlePress = useCallback(() => {
+    if (variant === 'recommendation') {
+      const recProps = props as RecommendationCardProps;
+      if (recProps.animeId) {
+        router.push(`/anime/${recProps.animeId}`);
+      }
     }
-  };
+  }, [variant, props, router]);
 
-  const Wrapper = props.variant === 'recommendation' ? TouchableOpacity : View;
+  const Wrapper = variant === 'recommendation' ? TouchableOpacity : View;
 
   return (
     <Wrapper
       style={{ width }}
       className={`mr-3 overflow-hidden rounded-xl ${isDark ? 'bg-gray-800' : 'bg-white'}`}
-      {...(props.variant === 'recommendation' ? { onPress: handlePress, activeOpacity: 0.8 } : {})}>
+      {...(variant === 'recommendation' ? { onPress: handlePress, activeOpacity: 0.8 } : {})}>
       <Image
         source={{ uri: imageUrl }}
         style={{ width, height: imageHeight }}

@@ -1,4 +1,5 @@
 // src/components/ui/SectionTitle.tsx
+import { memo } from 'react';
 import { View, Text } from 'react-native';
 import { useTheme } from '@/context/ThemeContext';
 
@@ -7,7 +8,10 @@ interface SectionTitleProps {
   accentColor?: string;
 }
 
-export function SectionTitle({ title, accentColor = '#6366f1' }: SectionTitleProps) {
+export const SectionTitle = memo(function SectionTitle({
+  title,
+  accentColor = '#6366f1',
+}: SectionTitleProps) {
   const { isDark } = useTheme();
 
   return (
@@ -18,4 +22,4 @@ export function SectionTitle({ title, accentColor = '#6366f1' }: SectionTitlePro
       </Text>
     </View>
   );
-}
+});
